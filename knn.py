@@ -59,7 +59,23 @@ maxDim = []
 minDim = []
 
 def kd_tree_check_node(kd_node, target, current_best_point, current_best_distance):
-	return current_best_point, current_best_distance, False
+	b = False
+	if type(kd_node) is tuple:
+		d = distance(target, kd_node)
+		if d < current_best_distance:
+			return d, kd_node, True
+	else:
+		axis = kd_node['head'][0]
+		if kd_node['head'][1] < maxDim[axis]:
+			# check the right node
+			current_best_distance, current_best_point, b = kd_tree_check_node(kd_node['right'], target, 
+				current_best_point, current_best_distance)
+		if kd_node['head'][1] > minDim[axis]:
+			# check the left node
+			current_best_distance, current_best_point, b = kd_tree_check_node(kd_node['left'], target, 
+				current_best_point, current_best_distance)
+	
+	return current_best_distance, current_best_point, b
 
 def kd_tree_search(kd_tree, target):
 	if type(kd_tree) is tuple:
@@ -76,9 +92,9 @@ def kd_tree_search(kd_tree, target):
 
 	if d:
 		global maxDim 
-		maxDim = [point[i] + dist for i in range(len(point))]
+		maxDim = [target[i] + dist for i in range(len(point))]
 		global minDim 
-		minDim = [point[i] - dist for i in range(len(point))]
+		minDim = [target[i] - dist for i in range(len(point))]
 
 	if opp_dir == 'right' and kd_tree['head'][1] > maxDim[kd_tree['head'][0]]:
 			return dist, point, False
